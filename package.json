@@ -1,6 +1,6 @@
 {
-  "name": "cbevins-tinker",
-  "description": "@cbevins sapper-webpack-template for tinkering",
+  "name": "location-services",
+  "description": "@cbevins tinkering with geolocation API services",
   "version": "0.0.1",
   "scripts": {
     "dev": "sapper dev",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "compression": "^1.7.1",
+    "node-fetch": "2.6.1",
     "polka": "next",
     "sirv": "^1.0.0"
   },
