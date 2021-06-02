@@ -5,7 +5,7 @@
  * 2 - have a local package.json with "type": "modules"
  */
 import {LocationServiceWeatherApi} from './LocationServiceWeatherApi.js'
-import { locationServiceWeatherApi } from './keys.js'
+import { locationServiceWeatherApiKey } from './keys.js'
 
 async function runParallel (search) {
   // First schedule ...
@@ -20,14 +20,14 @@ async function runParallel (search) {
 
 function runSerial (search) {
   // First do one ...
-  wapi.load(search).then(w => w.consoleReport())
+  wapi.load(search, locationServiceWeatherApiKey()).then(w => w.consoleReport())
   // ... then do the other
   // wapi.load(search).then(w => w.consoleReport())
 }
 
 console.log('LocationService example usgae with node.js')
 const M = { name: 'The "M"', lat: 46.859340, lon: -113.975528 }
-const wapi = new LocationServiceWeatherApi(locationServiceWeatherApi())
+const wapi = new LocationServiceWeatherApi()
 const search = `${M.lat},${M.lon}`
 // runParallel(search)
 runSerial(search)

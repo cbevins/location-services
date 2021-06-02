@@ -1,7 +1,7 @@
 export class LocationService {
   constructor (name) {
     this._name = name // Service name, i.e., 'WeatherApi' or 'Tomorrow'
-    this._search = null // search param
+    this._searchParams = '' // search param
     this._response = null // Service's raw JSON response
     this._okText = 'OK' // a constant fixed message for the OK condition
     this._status = 0
@@ -24,12 +24,15 @@ export class LocationService {
   ok () { return this._msg === this._okText }
   place () { return this._place }
   region () { return this._region }
+  searchParams () { return this._searchParams }
+  statusText () { return this._statusText }
   timezone () { return this._timezone }
 
-  async load (search) {
+  async load (search, apiKey) {
+    this._searchParams = search
     this._response = null
     this._msg = 'Loading'
-    const success =  await this._loadLocation(search)
+    const success =  await this._loadLocation(search, apiKey)
     if (success) {
     }
     return this
@@ -42,7 +45,7 @@ export class LocationService {
     console.log(`${text} ${geo}`)
   }
 
-  async _loadLocation () {
+  async _loadLocation (/*search, apiKey*/) {
     throw new Error('LocationService._loadLocation() must be reimplemented by a derived class')
   }
 }

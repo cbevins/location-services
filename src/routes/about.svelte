@@ -2,7 +2,7 @@
 	<title>About</title>
 </svelte:head>
 
-<h1>About this site</h1>
+<h1>Location Services</h1>
 
 <p>
 This is one of my 'tinker' sites where I sporadically work on various projects

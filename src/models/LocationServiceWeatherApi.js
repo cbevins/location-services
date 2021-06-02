@@ -1,15 +1,14 @@
-import fetch from 'node-fetch'
+// import fetch from 'node-fetch'
 import { LocationService } from './LocationService.js'
 
 export class LocationServiceWeatherApi extends LocationService {
-  constructor (key) {
+  constructor () {
     super('WeatherApi.com')
-    this._key = key
     this._url = 'https://api.weatherapi.com/v1/forecast.json'
   }
 
-  async _loadLocation (search) {
-    const query = `${this._url}?key=${this._key}&q=${search}`
+  async _loadLocation (search, key) {
+    const query = `${this._url}?key=${key}&q=${search}`
     console.log(query)
     try {
       const response = await fetch(query, { method: 'GET' })
@@ -20,7 +19,9 @@ export class LocationServiceWeatherApi extends LocationService {
         })
       // console.log(`${this.name()} response status ${response.status}: ${response.statusText}`)
       this._status = response.status
-      this._statusText = response.statusText
+      this._statusText = response.statusText === '' ? this._okText : response.statusText
+      console.log(response)
+      console.log(response.status, response.text)
       if (response.status < 200 || response.status >= 300) {
         this._msg = `Response status ${response.status}: ${response.statusText}`
         console.error(this._msg)
