@@ -2,9 +2,9 @@ import fetch from 'node-fetch'
 import { LocationService } from './LocationService.js'
 
 export class LocationServiceWeatherApi extends LocationService {
-  constructor () {
+  constructor (key) {
     super('WeatherApi.com')
-    this._key = '43956b1f6760417db1d182743212704'
+    this._key = key
     this._url = 'https://api.weatherapi.com/v1/forecast.json'
   }
 
