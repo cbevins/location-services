@@ -4,6 +4,7 @@
   import { currentLocation, foundLocation } from '../models/stores.js'
   import LoadingSpinner from '../components/LoadingSpinner.svelte'
   import LocationCard from '../components/LocationCard.svelte'
+  import LocationSearchExamples from '../components/LocationSearchExamples.svelte'
 
   // client inputs
   let apiKey = locationServiceWeatherApiKey()
@@ -11,8 +12,8 @@
   let service = new LocationServiceWeatherApi()
 
   // State
+  let bgHeader = ''
   let success = service._success
-  let applied = false
   let loadingLocation = false
   let header = 'Please Search for a Location'
   let title = ''
@@ -29,11 +30,13 @@
     await service.load(param, apiKey)
     success = service.success()
     if (success) {
+      bgHeader = 'bg-success'
       $foundLocation = service.clone()
       header = 'Found the following Location:'
       title = `${service.place()}, ${service.region()}, ${service.country()}`
       subtitle = `${service.lat()}, ${service.lon()}, ${service.timezone()}`
     } else {
+      bgHeader = 'bg-danger'
       header = `Error: ${service.code()}: '${service.message()}'`
       title = ''
       subtitle = ''
@@ -58,27 +61,20 @@
     <input type="text" bind:value={param} class="form-control" id="searchparams" placeholder="Search Parameters">
     <label for="searchparams">Search Parameters</label>
   </div>
-  <button on:click={getLocation} class="btn btn-outline-primary" type="button" id="search">
+  <button on:click={getLocation} class="btn btn-outline-primary btn-sm" type="button" id="search">
       Search for this Location
   </button>
-  <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchExamples" aria-expanded="false" aria-controls="collapseExamples">
+  <button data-bs-toggle="offcanvas" class="btn btn-outline-secondary" type="button" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
     Search Examples
   </button>
+  <!-- <button data-bs-toggle="collapse" class="btn btn-outline-secondary" type="button" data-bs-target="#searchExamples" aria-expanded="false" aria-controls="collapseExamples">
+    Search Examples
+  </button> -->
 </div>
 
 <div class="collapse" id="searchExamples">
   <div class="card card-body">
-    <ul>
-      <li>lat,lon decimal degrees e.g: <code>46.859340,-113.975528</code></li>
-      <li>city name e.g.: <code>Missoula</code></li>
-      <li>US zip e.g.: <code>59801</code></li>
-      <li>UK postcode e.g: <code>SW1</code></li>
-      <li>Canada postal code e.g: <code>G2J</code></li>
-      <li>metar:&lt;metar code&gt; e.g: <code>metar:EGLL</code></li>
-      <li>iata:&lt;digit airport code&gt; e.g: <code>iata:MSO</code></li>
-      <li>auto:ip IP lookup e.g: <code>auto:ip</code></li>
-      <li>IP address (IPv4 and IPv6 supported) e.g: <code>100.0.0.1</code></li>
-    </ul>
+    <LocationSearchExamples/>
   </div>
 </div>
 
@@ -86,24 +82,29 @@
   <LoadingSpinner msg='Fetching location data from WeatherApi.com ...' />'
 {/if}
 
-  <div class="card">
-    <div class="card-body">
-      <h4 class='card-header'>
-        {#if success === true }
-        <span class="badge bg-success">Success</span>
-        {:else}
-        <span class="badge bg-danger">Error</span>
-        {/if}
-        {header}
-      </h4>
-      <h4 class='card-title'>{title}</h4>
-      <h5 class='card-subtitle'>{subtitle}</h5>
-      {#if success === true}
-        <button on:click={applyLocation} class="btn btn-outline-primary">
-          Make this the Current Location
-        </button>
-      {/if}
-    </div>
+<div class="card shadow-lg mb-3">
+  <div class="card-body">
+    <h4 class='card-header bg-gradient {bgHeader}'>
+      {header}
+    </h4>
+    <h4 class='card-title'>{title}</h4>
+    <h5 class='card-subtitle'>{subtitle}</h5>
+    {#if success === true}
+      <button on:click={applyLocation} class="btn btn-outline-primary btn-sm">
+        Make this the Current Location
+      </button>
+    {/if}
   </div>
+</div>
 
-  <LocationCard location={$currentLocation} header={currentHeader}/>
+<LocationCard location={$currentLocation} header={currentHeader}/>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Search Examples</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <LocationSearchExamples/>
+  </div>
+</div>
