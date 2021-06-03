@@ -21,6 +21,17 @@ export class Location {
       country: this._country, timezone: this._timezone, gmt: this._gmt }
   }
 
+  // Location of The 'M'
+  M () {
+    this._lat = 46.859340
+    this._lon = -113.975528
+    this._place = 'The "M"'
+    this._region = 'Montana'
+    this._country = 'United States of America'
+    this._timezone = 'America/Denver'
+    this._gmt = -7
+  }
+
   gmt () { return this._gmt }
   lat () { return this._lat }
   lon () { return this._lon }

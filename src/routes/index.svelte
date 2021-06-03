@@ -1,12 +1,15 @@
 <script>
   import { LocationServiceWeatherApi } from '../models/LocationServiceWeatherApi.js'
   import { locationServiceWeatherApiKey } from '../models/keys.js'
+  import { currentLocation, foundLocation } from '../models/stores.js'
   import LoadingSpinner from '../components/LoadingSpinner.svelte'
+  import LocationCard from '../components/LocationCard.svelte'
 
   // client inputs
   let apiKey = locationServiceWeatherApiKey()
   let param = '46.859340,-113.975528' // The 'M'
   let service = new LocationServiceWeatherApi()
+
   // State
   let success = service._success
   let applied = false
@@ -14,22 +17,27 @@
   let header = 'Please Search for a Location'
   let title = ''
   let subtitle = ''
+  let currentHeader = 'No Current Location'
 
   function applyLocation () {
-    applied = true
-    header = 'The Current Location is'
-    // $loc = search
+    currentHeader = 'The Current Location is'
+    $currentLocation = service.clone()
   }
 
   const getLocation = async () => {
-    applied = false
     loadingLocation = true
     await service.load(param, apiKey)
     success = service.success()
-    header = success ? 'Found the following Location:'
-      : `Error: ${service.status()}: ${service.statusText()}`
-    title = success ? `${service.name()}, ${service.region()}, ${service.country()}` : ''
-    subtitle = success ? `${service.lat()}, ${service.lon()}, ${service.timezone()}` : ''
+    if (success) {
+      $foundLocation = service.clone()
+      header = 'Found the following Location:'
+      title = `${service.place()}, ${service.region()}, ${service.country()}`
+      subtitle = `${service.lat()}, ${service.lon()}, ${service.timezone()}`
+    } else {
+      header = `Error: ${service.code()}: '${service.message()}'`
+      title = ''
+      subtitle = ''
+    }
     loadingLocation = false
   }
 </script>
@@ -86,16 +94,16 @@
         {:else}
         <span class="badge bg-danger">Error</span>
         {/if}
-        {header}</h4>
+        {header}
+      </h4>
       <h4 class='card-title'>{title}</h4>
       <h5 class='card-subtitle'>{subtitle}</h5>
-      {#if applied === false}
-        {#if success === true}
-          <button on:click={applyLocation} class="btn btn-outline-primary">
-            Apply this Location!
-          </button>
-        {/if}
+      {#if success === true}
+        <button on:click={applyLocation} class="btn btn-outline-primary">
+          Make this the Current Location
+        </button>
       {/if}
-      <!-- <LocationSearchResultsTable service='{service}'/> -->
     </div>
   </div>
+
+  <LocationCard location={$currentLocation} header={currentHeader}/>
