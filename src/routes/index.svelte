@@ -3,31 +3,33 @@
   import { locationServiceWeatherApiKey } from '../models/keys.js'
   import LoadingSpinner from '../components/LoadingSpinner.svelte'
 
+  // client inputs
+  let apiKey = locationServiceWeatherApiKey()
   let param = '46.859340,-113.975528' // The 'M'
+  let service = new LocationServiceWeatherApi()
+  // State
+  let success = service._success
   let applied = false
   let loadingLocation = false
-  let service = new LocationServiceWeatherApi()
-  let success = false
-  let useButtonText = 'Ok, use this Location'
-  let useButtonColor = 'btn-outline-primary'
+  let header = 'Please Search for a Location'
+  let title = ''
+  let subtitle = ''
 
   function applyLocation () {
     applied = true
+    header = 'The Current Location is'
     // $loc = search
-    useButtonText = 'This is the Current Location'
-    useButtonColor = 'btn-outline-success'
-    // getMapquestElev()
-    // getUsgsEpqs()
-    // getTomorrow()
-    // getWeatherApi()
   }
 
   const getLocation = async () => {
     applied = false
     loadingLocation = true
-    success = await service.load(param, locationServiceWeatherApiKey())
-    useButtonText = 'Ok, use this Location'
-    useButtonColor = 'btn-outline-primary'
+    await service.load(param, apiKey)
+    success = service.success()
+    header = success ? 'Found the following Location:'
+      : `Error: ${service.status()}: ${service.statusText()}`
+    title = success ? `${service.name()}, ${service.region()}, ${service.country()}` : ''
+    subtitle = success ? `${service.lat()}, ${service.lon()}, ${service.timezone()}` : ''
     loadingLocation = false
   }
 </script>
@@ -36,25 +38,24 @@
 	<title>Location Services</title>
 </svelte:head>
 
-<h1>Location Services</h1>
-
 <h1>Step 1: Select a Location</h1>
-<div class="row mb-3">
-  <div class="col">Search for:</div>
-  <div class="col">
-    <input  bind:value={param} type="text" class="form-control" aria-label="Search item">
+
+<div class="form-floating mb-3">
+  <input type="text" bind:value={apiKey} class="form-control" id="apikey" placeholder="WeatherAPI.com API key">
+  <label for="apikey">WeatherAPI.com API key</label>
+</div>
+
+<div class="input-group mb-3">
+  <div class="form-floating">
+    <input type="text" bind:value={param} class="form-control" id="searchparams" placeholder="Search Parameters">
+    <label for="searchparams">Search Parameters</label>
   </div>
-  <div class="col">
-    <button  on:click={getLocation}
-      class="btn btn-outline-primary" type="button" id="button">
-        Search
-      </button>
-    </div>
-  <div class="col">
-    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchExamples" aria-expanded="false" aria-controls="collapseExamples">
-      Examples
-    </button>
-  </div>
+  <button on:click={getLocation} class="btn btn-outline-primary" type="button" id="search">
+      Search for this Location
+  </button>
+  <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchExamples" aria-expanded="false" aria-controls="collapseExamples">
+    Search Examples
+  </button>
 </div>
 
 <div class="collapse" id="searchExamples">
@@ -77,42 +78,24 @@
   <LoadingSpinner msg='Fetching location data from WeatherApi.com ...' />'
 {/if}
 
-{#if success}
   <div class="card">
     <div class="card-body">
-      <div class="row mb-3">
-        <div class='col card-title'>
-          {#if applied}
-            <strong>Currently Selected Location</strong>
-          {:else}
-            <strong>Search Results</strong>
-          {/if}
-        </div>
-        <div class="col">
-          {#if applied}
-            &nbsp;
-          {:else}
-          <button on:click={applyLocation} class="btn {useButtonColor}">
-            {useButtonText}
+      <h4 class='card-header'>
+        {#if success === true }
+        <span class="badge bg-success">Success</span>
+        {:else}
+        <span class="badge bg-danger">Error</span>
+        {/if}
+        {header}</h4>
+      <h4 class='card-title'>{title}</h4>
+      <h5 class='card-subtitle'>{subtitle}</h5>
+      {#if applied === false}
+        {#if success === true}
+          <button on:click={applyLocation} class="btn btn-outline-primary">
+            Apply this Location!
           </button>
-          {/if}
-        </div>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-sm table-striped table-bordered border-primary">
-          <tbody>
-            <tr><td>Search Params</td><td>{service.searchParams()}</td></tr>
-            <tr><td>Results</td><td>{service.statusText()}</td></tr>
-            <tr><td>Name</td><td>{service.place()}</td></tr>
-            <tr><td>Region</td><td>{service.region()}</td></tr>
-            <tr><td>Country</td><td>{service.country()}</td></tr>
-            <tr><td>Latitude</td><td>{service.lat()}</td></tr>
-            <tr><td>Longitude</td><td>{service.lon()}</td></tr>
-            <tr><td>Time Zone</td><td>{service.timezone()}</td></tr>
-          </tbody>
-        </table>
-      </div>
+        {/if}
+      {/if}
+      <!-- <LocationSearchResultsTable service='{service}'/> -->
     </div>
   </div>
-{/if}

@@ -25,9 +25,18 @@ function runSerial (search) {
   // wapi.load(search).then(w => w.consoleReport())
 }
 
-console.log('LocationService example usgae with node.js')
+console.log('LocationService example usage with node.js')
 const M = { name: 'The "M"', lat: 46.859340, lon: -113.975528 }
 const wapi = new LocationServiceWeatherApi()
 const search = `${M.lat},${M.lon}`
+
+const goodUrl = 'https://api.weatherapi.com/v1/forecast.json'
+const badUrl = 'https://api.weatherapi.com/v2/forecast.json'
+const badKey = '_'
+const goodParam = '46.859340,-113.975528'
+const badParam = ''
+
 // runParallel(search)
 runSerial(search)
+runSerial('')
+wapi.load(search, badKey).then(w => w.consoleReport())
